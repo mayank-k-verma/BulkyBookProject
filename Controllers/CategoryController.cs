@@ -1,5 +1,7 @@
 using BulkyBookWeb.Data;
+using BulkyBookWeb.interfaces;
 using BulkyBookWeb.Models;
+using BulkyBookWeb.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BulkyBookWeb.Controllers;
@@ -7,30 +9,28 @@ namespace BulkyBookWeb.Controllers;
 public class CategoryController : Controller{
 
     private readonly ApplicationDbContext _dbContext;
+    private readonly ICategoryServices _catServices;
 
-    public CategoryController(ApplicationDbContext dbContext)
+    public CategoryController(ApplicationDbContext dbContext, ICategoryServices catServices)
     {
         _dbContext = dbContext;
+        _catServices = catServices;
     }
 
     public IActionResult Index(){   
-        //objCategoryList stores the data from database
-        IEnumerable<Category> objCategoryList = _dbContext.Categories;
-        //and this objCategoryList model is send to the view page
+        IEnumerable<Category> objCategoryList = _catServices.GetCategories();
         return View(objCategoryList);
     }
 
     public IActionResult Create(){
         return View();
-        //return Content("Create Action in progress...");
     }
 
     [HttpPost]
     public IActionResult Create(Category obj){
         if(ModelState.IsValid){
-            _dbContext.Categories.Add(obj);
-            _dbContext.SaveChanges();
-            TempData["success"] = "Category Created Successfully";
+            if(_catServices.AddCategory(obj))    
+                TempData["success"] = "Category Created Successfully";
             return RedirectToAction("Index", "Category");
         }
         return View(obj);
@@ -38,7 +38,7 @@ public class CategoryController : Controller{
 
     public IActionResult Edit(int? Id){
         if(Id == null || Id == 0)   return NotFound();
-        var categoryFromDb = _dbContext.Categories.Find(Id);
+        var categoryFromDb = _catServices.GetCategoryById(Id.Value);
         if(categoryFromDb == null)  return NotFound();
         return View(categoryFromDb);
     }
@@ -46,9 +46,8 @@ public class CategoryController : Controller{
     [HttpPost]
     public IActionResult Edit(Category obj){
         if(ModelState.IsValid){
-            _dbContext.Categories.Update(obj);
-            _dbContext.SaveChanges();
-            TempData["success"] = "Category Updated Successfully";
+            if(_catServices.UpdateCategory(obj))
+                TempData["success"] = "Category Updated Successfully";
             return RedirectToAction("Index", "Category");
         }
         return View(obj);
@@ -56,17 +55,16 @@ public class CategoryController : Controller{
 
     public IActionResult Delete(int? Id){
         if(Id == null || Id == 0)   return NotFound();
-        var categoryFromDb = _dbContext.Categories.Find(Id);
+        var categoryFromDb = _catServices.GetCategoryById(Id.Value);
         if(categoryFromDb == null)  return NotFound();
         return View(categoryFromDb);
     }
 
     [HttpPost, ActionName("Delete")]
     public IActionResult DeletePOST(int? Id){
-        var categoryFromDb = _dbContext.Categories.Find(Id);
+        Category categoryFromDb = _catServices.GetCategoryById(Id.Value);
         if(categoryFromDb == null)  return NotFound();
-        _dbContext.Categories.Remove(categoryFromDb);
-        _dbContext.SaveChanges();
+        _catServices.DeleteCategory(categoryFromDb);
         TempData["success"] = "Category Deleted Successfully";
         return RedirectToAction("Index", "Category");
     }
