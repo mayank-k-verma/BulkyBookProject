@@ -1,0 +1,38 @@
+@model Category;
+@* We are recieving data retrieved from the database using Delete Action *@
+@* And we don't need to declare or initiaze anything to use that data *@
+@* Using the data directly in html using tag helpers *@
+
+@* By Default it will look for the action with the same name in controller *@
+@* So it is not necessary to explicitly tell the compiler asp-action *@
+<form asp-controller="Category" asp-action="Delete" method="post">
+    @* input field is inserted separately bcz input fields inside divs are disabled *@
+    <input asp-for="Id" hidden />
+    <div class="border p-3 mt-4">
+        <div class="row pb-2">
+            <h2 class="text-primary">Delete Category</h2>
+            <hr />
+        </div>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Name"></label>
+        @* asp-for tag below populates the data recieved from the database *@
+        <input asp-for="Name" disabled class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="DisplayOrder"></label>
+        @* asp-for tag below populates the data recieved from the database *@
+        <input asp-for="DisplayOrder" disabled class="form-control" />
+    </div>
+    <button asp-action="Delete" type="submit" class="btn btn-danger" style="width : 150px">Delete</button>
+    <a asp-action="Index" class="btn btn-primary" style="width : 150px">
+        Back To List
+    </a>
+</form>
+
+@* Added partial script for client side validation *@
+@section Scripts {
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+}
