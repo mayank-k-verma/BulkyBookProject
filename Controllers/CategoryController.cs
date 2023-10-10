@@ -8,12 +8,10 @@ namespace BulkyBookWeb.Controllers;
 
 public class CategoryController : Controller{
 
-    private readonly ApplicationDbContext _dbContext;
     private readonly ICategoryServices _catServices;
 
-    public CategoryController(ApplicationDbContext dbContext, ICategoryServices catServices)
+    public CategoryController(ICategoryServices catServices)
     {
-        _dbContext = dbContext;
         _catServices = catServices;
     }
 
